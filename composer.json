@@ -2,6 +2,7 @@
   "name": "1csoft/bitrix-admin-constructor",
   "description": "",
   "type": "library",
+  "version": "0.0.1",
   "authors": [
     {
       "name": "GrandMaster",
