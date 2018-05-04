@@ -5,10 +5,10 @@
  * Date: 04.05.2018
  */
 
-namespace Soft1c;
+namespace Soft1c\Builder;
 
 
-class BaseRouter
+class EditPage
 {
 
 }
