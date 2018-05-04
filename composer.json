@@ -11,11 +11,25 @@
   ],
   "license": "MIT",
   "require": {
+<<<<<<< HEAD
     "php": ">=7.0",
     "psr/log": "*",
     "psr/cache": "*",
     "psr/container": "*",
     "psr/link": "*"
+=======
+    "php": ">=5.5.9|>=7.0.8",
+    "psr/log": "*",
+    "psr/cache": "*",
+    "psr/container": "*",
+    "psr/link": "*",
+    "symfony/var-dumper": "^3.4",
+    "symfony/console": "^3.4",
+    "symfony/dependency-injection": "^3.4",
+    "symfony/event-dispatcher": "^3.4",
+    "symfony/form": "^3.4",
+    "symfony/options-resolver": "^3.4"
+>>>>>>> 64eb32d31884477af2585dc0eff9d0b04bff579d
   },
   "autoload": {
     "psr-4": {
