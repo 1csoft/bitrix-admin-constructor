@@ -8,7 +8,7 @@
 namespace Soft1c;
 
 
-class Init
+class BaseRouter
 {
 
 }
