@@ -1,5 +1,6 @@
 # bitrix-admin-constructor
 
+```
 <?php require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
 
 use Bitrix\Main;
@@ -22,3 +23,4 @@ $dataPage = $PageRender->render();
 dump($PageRender);
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_admin.php");
+```
