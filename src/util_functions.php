@@ -14,8 +14,18 @@ VarDumper::setHandler(function ($var){
 		$iteArgs = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		$bt = $iteArgs[0];
 		if(strlen($bt['file']) == 0){
+			foreach ($iteArgs as $iteArg) {
+				if($iteArg['function'] == 'dump' && $iteArg['class'] !== 'Symfony\Component\VarDumper\VarDumper'){
+					$bt = $iteArg;
+					break;
+				}
+			}
+		}
+
+		if(strlen($bt['file']) == 0){
 			$bt = array_pop($iteArgs);
 		}
+
 		$dumper = new HtmlDumper();
 		$dumper->setStyles([
 			'default' => 'outline:none; line-height:1.2em; font:14px Menlo, Monaco, Consolas, monospace; word-wrap: break-word; position:relative; z-index:99999; word-break: normal; margin-bottom: 0',

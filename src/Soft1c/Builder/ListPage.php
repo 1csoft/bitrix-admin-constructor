@@ -8,16 +8,14 @@
 namespace Soft1c\Builder;
 
 
-class ListPage
+class ListPage implements PageRender
 {
 	/** @var \CAdminList */
 	protected $list;
 
-	/**
-	 * ListPage constructor.
-	 */
-	public function __construct()
+	public function __construct($params)
 	{
+		$this->setList(new \CAdminList($params['table_id'], $params['sort']));
 	}
 
 	/**
@@ -38,5 +36,15 @@ class ListPage
 		$this->list = $list;
 	}
 
+	public function render()
+	{
+		// TODO: Implement render() method.
+	}
+
+	public function renderFilter()
+	{
+
+
+	}
 
 }

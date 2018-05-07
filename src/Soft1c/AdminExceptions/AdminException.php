@@ -10,5 +10,13 @@ namespace Soft1c\AdminExceptions;
 
 interface AdminException
 {
+	/**
+	 * AdminException constructor.
+	 *
+	 * @param mixed $message
+	 * @param int $code
+	 * @param \Throwable|null $previous
+	 */
+	public function __construct($message, $code = 0, \Throwable $previous = null);
 
 }

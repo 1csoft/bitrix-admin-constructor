@@ -20,7 +20,8 @@
     "symfony/dependency-injection": "^3.4",
     "symfony/event-dispatcher": "^3.4",
     "symfony/form": "^3.4",
-    "symfony/options-resolver": "^3.4"
+    "symfony/options-resolver": "^3.4",
+    "symfony/yaml": "^3.4"
   },
   "autoload": {
     "psr-4": {

@@ -8,7 +8,17 @@
 namespace Soft1c\Builder;
 
 
-class EditPage
+class EditPage implements PageRender
 {
+	public function render()
+	{
+		// TODO: Implement render() method.
+	}
+
+	public function renderFilter()
+	{
+		// TODO: Implement renderFilter() method.
+	}
+
 
 }
