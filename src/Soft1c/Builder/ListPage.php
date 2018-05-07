@@ -11,40 +11,83 @@ namespace Soft1c\Builder;
 class ListPage implements PageRender
 {
 	/** @var \CAdminList */
-	protected $list;
+	protected $CAdminList;
 
-	public function __construct($params)
+	protected $config;
+
+	protected $fields;
+
+	public function __construct($params = [], $config = [], $fields = [])
 	{
-		$this->setList(new \CAdminList($params['table_id'], $params['sort']));
+		$this->setAdminList(new \CAdminList($params['table_id'], $params['sort']));
+		$this->setFields($fields);
+		$this->setConfig($config);
+
 	}
 
 	/**
 	 * @method getList - get param list
 	 * @return \CAdminList
 	 */
-	public function getList()
+	public function getAdminList()
 	{
-		return $this->list;
+		return $this->CAdminList;
 	}
 
 	/**
 	 * @method setList - set param List
 	 * @param \CAdminList $list
 	 */
-	public function setList(\CAdminList $list)
+	public function setAdminList(\CAdminList $list)
 	{
-		$this->list = $list;
+		$this->CAdminList = $list;
 	}
 
 	public function render()
 	{
-		// TODO: Implement render() method.
+//		dump($this->getFields()['core']);
+
 	}
 
 	public function renderFilter()
 	{
 
+	}
 
+	/**
+	 * @method getConfig - get param config
+	 * @return mixed
+	 */
+	public function getConfig()
+	{
+		return $this->config;
+	}
+
+	/**
+	 * @method setConfig - set param Config
+	 * @param mixed $config
+	 */
+	public function setConfig($config)
+	{
+		$this->config = $config;
+	}
+
+	/**
+	 * @method getFields - get param fields
+	 * @return mixed
+	 */
+	public function getFields()
+	{
+		return $this->fields;
+	}
+
+	/**
+	 * @method setFields - set param Fields
+	 * @param mixed $fields
+	 */
+	public function setFields($fields)
+	{
+		$this->fields = $fields;
 	}
 
 }

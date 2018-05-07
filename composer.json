@@ -27,5 +27,6 @@
     "psr-4": {
       "Soft1c\\": "src/Soft1c"
     }
-  }
+  },
+  "files": ["src/util_functions.php"]
 }

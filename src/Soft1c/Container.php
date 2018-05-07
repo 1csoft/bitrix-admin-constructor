@@ -351,12 +351,14 @@ class Container extends DependencyInjection\ContainerBuilder
 				);
 
 				$this->register('listPage', \Soft1c\Builder\ListPage::class)
-					->setArguments([$defaultTableParams]);
+					->setArguments([$defaultTableParams, $this->configEntity, $this->fields]);
+
+
 
 				return $this->get('listPage');
 			case 'edit':
 				$this->register('editPage', \Soft1c\Builder\ListPage::class)
-					->setArguments([$defaultTableParams]);
+					->setArguments([$defaultTableParams, $this->configEntity, $this->fields]);
 
 				return $this->get('editPage');
 		}

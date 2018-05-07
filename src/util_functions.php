@@ -6,7 +6,6 @@ use Symfony\Component\VarDumper\VarDumper;
 
 VarDumper::setHandler(function ($var){
 	$cloner = new VarCloner();
-
 	if(in_array(PHP_SAPI, array('cli', 'phpdbg'), true)){
 		$dumper = new CliDumper();
 		$dumper->dump($cloner->cloneVar($var));
@@ -64,6 +63,11 @@ if(!function_exists('dd')){
 if (!function_exists('PR')) {
 	function PR($o, $show = false) {
 		global $USER;
+
+		if(!is_object($USER) && class_exists('CUser')){
+			$USER = new \CUser();
+		}
+
 		if ($USER->IsAdmin() || $show) {
 			$bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 			$bt = $bt[0];
@@ -84,4 +88,8 @@ if (!function_exists('PR')) {
 			return false;
 		}
 	}
+}
+
+function test_dump(){
+	var_dump('asdasdasd');
 }
