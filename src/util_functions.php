@@ -63,11 +63,6 @@ if(!function_exists('dd')){
 if (!function_exists('PR')) {
 	function PR($o, $show = false) {
 		global $USER;
-
-		if(!is_object($USER) && class_exists('CUser')){
-			$USER = new \CUser();
-		}
-
 		if ($USER->IsAdmin() || $show) {
 			$bt = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 			$bt = $bt[0];
@@ -88,8 +83,4 @@ if (!function_exists('PR')) {
 			return false;
 		}
 	}
-}
-
-function test_dump(){
-	var_dump('asdasdasd');
 }

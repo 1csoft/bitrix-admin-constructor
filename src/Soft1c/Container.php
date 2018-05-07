@@ -58,11 +58,34 @@ class Container extends DependencyInjection\ContainerBuilder
 		],
 	];
 
+	/** @var Container */
+	protected static $instance = null;
+
+	/**
+	 * Container constructor.
+	 *
+	 * @param ParameterBagInterface|null $parameterBag
+	 */
 	public function __construct(ParameterBagInterface $parameterBag = null)
 	{
 		parent::__construct($parameterBag);
 
 		$this->request = Main\Context::getCurrent()->getRequest();
+		self::$instance = $this;
+	}
+
+	/**
+	 * @method getInstance
+	 * @param ParameterBagInterface|null $parameterBag
+	 *
+	 * @return Container|static
+	 */
+	public static function getInstance(ParameterBagInterface $parameterBag = null)
+	{
+		if(is_null(self::$instance)){
+			self::$instance = new static($parameterBag);
+		}
+		return self::$instance;
 	}
 
 	/**
@@ -211,6 +234,23 @@ class Container extends DependencyInjection\ContainerBuilder
 			if(method_exists($field, 'getValues')){
 				$dataField['values'] = $field->getValues();
 			}
+		} elseif ($field instanceof Main\Entity\ReferenceField){
+			$ref = $field->getReference();
+			$ref = array_shift($ref);
+
+			preg_match('/^ref\.([a-zA-Z]+)$/i', $ref, $matchRef);
+
+			$refEntity = $field->getRefEntity();
+			$refNameShow = $matchRef[1];
+			if($refEntity->hasField('NAME')){
+				$refNameShow = $refEntity->getField('NAME')->getName();
+			} elseif ($refEntity->hasField('TITLE')){
+				$refNameShow = $refEntity->getField('TITLE')->getName();
+			}
+			$dataField['reference'] = [
+				'FROM' => $field->getName(),
+				'TO' => $refNameShow
+			];
 		}
 
 		return $dataField;
@@ -351,14 +391,12 @@ class Container extends DependencyInjection\ContainerBuilder
 				);
 
 				$this->register('listPage', \Soft1c\Builder\ListPage::class)
-					->setArguments([$defaultTableParams, $this->configEntity, $this->fields]);
-
-
+					->setArguments([$defaultTableParams]);
 
 				return $this->get('listPage');
 			case 'edit':
 				$this->register('editPage', \Soft1c\Builder\ListPage::class)
-					->setArguments([$defaultTableParams, $this->configEntity, $this->fields]);
+					->setArguments([$defaultTableParams]);
 
 				return $this->get('editPage');
 		}

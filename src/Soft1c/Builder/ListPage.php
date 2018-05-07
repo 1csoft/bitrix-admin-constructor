@@ -7,21 +7,17 @@
 
 namespace Soft1c\Builder;
 
+use Bitrix\Main;
+use Soft1c\Container;
 
 class ListPage implements PageRender
 {
 	/** @var \CAdminList */
-	protected $CAdminList;
+	protected $list;
 
-	protected $config;
-
-	protected $fields;
-
-	public function __construct($params = [], $config = [], $fields = [])
+	public function __construct($params)
 	{
-		$this->setAdminList(new \CAdminList($params['table_id'], $params['sort']));
-		$this->setFields($fields);
-		$this->setConfig($config);
+		$this->setList(new \CAdminList($params['table_id'], $params['sort']));
 
 	}
 
@@ -29,65 +25,48 @@ class ListPage implements PageRender
 	 * @method getList - get param list
 	 * @return \CAdminList
 	 */
-	public function getAdminList()
+	public function getList()
 	{
-		return $this->CAdminList;
+		return $this->list;
 	}
 
 	/**
 	 * @method setList - set param List
 	 * @param \CAdminList $list
 	 */
-	public function setAdminList(\CAdminList $list)
+	public function setList(\CAdminList $list)
 	{
-		$this->CAdminList = $list;
+		$this->list = $list;
+	}
+
+	public function initFilter()
+	{
+		return [];
 	}
 
 	public function render()
 	{
-//		dump($this->getFields()['core']);
+		$fields = Container::getInstance()->getFields();
+		$filter = $this->initFilter();
+
+		$model = Container::getInstance()->getModel();
+		$query = new Main\Entity\Query($model);
+
+		foreach ($fields['core'] as $code => $field) {
+			if($field['reference']){
+				$alias = $field['reference']['FROM'].'_REF_'.$field['reference']['TO'];
+				$query->addSelect($field['reference']['FROM'].'.'.$field['reference']['TO'], $alias);
+			} else {
+				$query->addSelect($field['property'], $code);
+			}
+		}
 
 	}
 
 	public function renderFilter()
 	{
 
-	}
 
-	/**
-	 * @method getConfig - get param config
-	 * @return mixed
-	 */
-	public function getConfig()
-	{
-		return $this->config;
-	}
-
-	/**
-	 * @method setConfig - set param Config
-	 * @param mixed $config
-	 */
-	public function setConfig($config)
-	{
-		$this->config = $config;
-	}
-
-	/**
-	 * @method getFields - get param fields
-	 * @return mixed
-	 */
-	public function getFields()
-	{
-		return $this->fields;
-	}
-
-	/**
-	 * @method setFields - set param Fields
-	 * @param mixed $fields
-	 */
-	public function setFields($fields)
-	{
-		$this->fields = $fields;
 	}
 
 }
