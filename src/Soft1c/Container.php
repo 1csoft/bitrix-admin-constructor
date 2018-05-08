@@ -9,14 +9,14 @@ namespace Soft1c;
 
 use Bitrix\Main;
 use Soft1c\AdminExceptions;
-use Soft1c\Builder\PageRender;
+use Soft1c\Builder\AdminBase;
 use Symfony\Component\DependencyInjection;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-class Container extends DependencyInjection\ContainerBuilder
+class Container
 {
 	/** @var Main\Request */
 	protected $request;
@@ -28,7 +28,7 @@ class Container extends DependencyInjection\ContainerBuilder
 	protected $entityType;
 
 	/** @var Main\Entity\Base */
-	protected $model;
+	protected $entity;
 
 	/** @var Main\Entity\Field [] */
 	protected $fields;
@@ -63,27 +63,22 @@ class Container extends DependencyInjection\ContainerBuilder
 
 	/**
 	 * Container constructor.
-	 *
-	 * @param ParameterBagInterface|null $parameterBag
 	 */
-	public function __construct(ParameterBagInterface $parameterBag = null)
+	public function __construct()
 	{
-		parent::__construct($parameterBag);
-
 		$this->request = Main\Context::getCurrent()->getRequest();
 		self::$instance = $this;
 	}
 
 	/**
 	 * @method getInstance
-	 * @param ParameterBagInterface|null $parameterBag
 	 *
 	 * @return Container|static
 	 */
-	public static function getInstance(ParameterBagInterface $parameterBag = null)
+	public static function getInstance()
 	{
 		if(is_null(self::$instance)){
-			self::$instance = new static($parameterBag);
+			self::$instance = new static();
 		}
 		return self::$instance;
 	}
@@ -127,18 +122,39 @@ class Container extends DependencyInjection\ContainerBuilder
 		/** @var Main\Entity\DataManager $model */
 		$model = $currentEntity['model'];
 		try {
-			$this->model = $model::getEntity();
-//			$fields = $this->model->getFields();
+			$this->entity = $model::getEntity();
+//			$fields = $this->entity->getFields();
 		} catch (\Error $error) {
 			throw new AdminExceptions\ErrorException($error->getMessage(), $error->getCode());
 		}
 
-//		dump($this->model->getFields());
+//		dump($this->entity->getFields());
 
 		$this->entityType = $opt['_type'];
 		$this->moduleId = $opt['_module'];
 		$this->configEntity = $currentEntity;
 		$this->buildFieldsMap($this->entityType);
+
+		$defaultBXParams = [
+			'table_id' => 'table_'.$this->moduleId.'_'.$this->entityNameAdmin,
+			'form_id' => 'form_edit_'.$this->moduleId.'_'.$this->entityNameAdmin,
+		];
+
+		if($this->configEntity[$this->entityType]['table_id']){
+			$defaultBXParams['table_id'] = $this->configEntity[$this->entityType]['table_id'];
+		}
+
+		if($this->configEntity[$this->entityType]['form_id']){
+			$defaultBXParams['form_id'] = $this->configEntity[$this->entityType]['form_id'];
+		}
+
+		if(is_array($this->configEntity['sort'])){
+			$defaultBXParams['sort'] = $this->configEntity['sort'];
+		} else {
+			$defaultBXParams['sort'] = ['ID' => 'DESC'];
+		}
+
+		$this->configEntity[$this->entityType]['default_params'] = $defaultBXParams;
 
 		return $this;
 	}
@@ -170,9 +186,9 @@ class Container extends DependencyInjection\ContainerBuilder
 							$title = $value['property'];
 						}
 
-						if ($this->model->hasField($title)){
+						if ($this->entity->hasField($title)){
 
-							$field = $this->model->getField($title);
+							$field = $this->entity->getField($title);
 
 							$dataField = $this->getScalarField($field);
 
@@ -182,8 +198,12 @@ class Container extends DependencyInjection\ContainerBuilder
 
 							$this->fields['core'][$title] = $dataField;
 						} else {
+
+							if(!is_array($value)){
+								$value = ['property' => $title];
+							}
 							$value['virtual'] = true;
-							$this->fields['core'][$value['property']] = array_merge(
+							$this->fields['core'][$title] = array_merge(
 								$this->defaultField, $value
 							);
 						}
@@ -192,7 +212,7 @@ class Container extends DependencyInjection\ContainerBuilder
 					}
 				} else {
 					/** @var Main\Entity\Field $field */
-					foreach ($this->model->getFields() as $field) {
+					foreach ($this->entity->getFields() as $field) {
 						$this->fields['core'][$field->getName()] = $this->getScalarField($field);
 						$this->fields['map'][] = $field->getName();
 					}
@@ -247,9 +267,11 @@ class Container extends DependencyInjection\ContainerBuilder
 			} elseif ($refEntity->hasField('TITLE')){
 				$refNameShow = $refEntity->getField('TITLE')->getName();
 			}
+			$dataField['property'] = $field->getName().'_REF_'.$refNameShow;
+			$dataField['virtual'] = true;
 			$dataField['reference'] = [
 				'FROM' => $field->getName(),
-				'TO' => $refNameShow
+				'TO' => $refNameShow,
 			];
 		}
 
@@ -328,12 +350,12 @@ class Container extends DependencyInjection\ContainerBuilder
 	}
 
 	/**
-	 * @method getModel - get param model
+	 * @method getEntity - get param model
 	 * @return Main\Entity\Base
 	 */
-	public function getModel()
+	public function getEntity()
 	{
-		return $this->model;
+		return $this->entity;
 	}
 
 	/**
@@ -361,45 +383,6 @@ class Container extends DependencyInjection\ContainerBuilder
 	public function getConfigEntity()
 	{
 		return $this->configEntity;
-	}
-
-	/**
-	 * @method buildPage
-	 * @return PageRender
-	 */
-	public function buildPage()
-	{
-
-		$defaultTableParams = [
-			'table_id' => 'table_'.$this->moduleId.'_'.$this->entityNameAdmin,
-			'form_id' => 'form_edit_'.$this->moduleId.'_'.$this->entityNameAdmin,
-		];
-
-		if($this->configEntity[$this->entityType]['table_id']){
-			$defaultTableParams['table_id'] = $this->configEntity[$this->entityType]['table_id'];
-		}
-
-		if($this->configEntity[$this->entityType]['form_id']){
-			$defaultTableParams['form_id'] = $this->configEntity[$this->entityType]['form_id'];
-		}
-
-		switch ($this->entityType){
-			case 'list':
-				$defaultTableParams['sort'] =  new \CAdminSorting(
-					$defaultTableParams['table_id'],
-					'ID', 'DESC'
-				);
-
-				$this->register('listPage', \Soft1c\Builder\ListPage::class)
-					->setArguments([$defaultTableParams]);
-
-				return $this->get('listPage');
-			case 'edit':
-				$this->register('editPage', \Soft1c\Builder\ListPage::class)
-					->setArguments([$defaultTableParams]);
-
-				return $this->get('editPage');
-		}
 	}
 
 }

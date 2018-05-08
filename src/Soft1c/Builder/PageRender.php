@@ -11,8 +11,4 @@ namespace Soft1c\Builder;
 interface PageRender
 {
 	public function render();
-
-	public function renderFilter();
-
-
 }

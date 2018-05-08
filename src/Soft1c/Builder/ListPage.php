@@ -10,15 +10,29 @@ namespace Soft1c\Builder;
 use Bitrix\Main;
 use Soft1c\Container;
 
-class ListPage implements PageRender
+class ListPage implements ListPageRender
 {
 	/** @var \CAdminList */
 	protected $list;
 
-	public function __construct($params)
-	{
-		$this->setList(new \CAdminList($params['table_id'], $params['sort']));
+	/** @var AdminBase */
+	protected $adminBase;
 
+	/** @var \CAdminSorting */
+	protected $CAdminSorting;
+
+	public function __construct(AdminBase $adminBase)
+	{
+		$this->adminBase = $adminBase;
+		$params = $this->adminBase->getDefaultParams();
+		$this->CAdminSorting = new \CAdminSorting($params['table_id']);
+		foreach ($params['sort'] as $code => $order) {
+			$this->CAdminSorting->by_initial = $code;
+			$this->CAdminSorting->order_initial = $order;
+			break;
+		}
+
+		$this->setList(new \CAdminList($params['table_id'], $this->CAdminSorting));
 	}
 
 	/**
@@ -39,34 +53,60 @@ class ListPage implements PageRender
 		$this->list = $list;
 	}
 
-	public function initFilter()
+	/**
+	 * @method getFilter
+	 * @param array $filter
+	 *
+	 * @return null|array
+	 */
+	public function getFilter(array $filter = [])
 	{
-		return [];
+		// TODO: Implement getFilter() method.
+	}
+
+	/**
+	 * @method getQuery
+	 * @return Main\Entity\Query
+	 */
+	public function getQuery()
+	{
+		$this->adminBase->getQuery()
+			->addOrder($this->CAdminSorting->by_initial, $this->CAdminSorting->order_initial);
+
+		return $this->adminBase->getQuery();
+	}
+
+	public function fetchData()
+	{
+		foreach ($this->adminBase->getFields() as $code => $field) {
+//			if($field['virtual'])
+//				continue;
+
+			if(!is_array($field['reference'])){
+				$this->getQuery()->addSelect($code, $field['property']);
+			} else {
+				$this->getQuery()->addSelect(
+					$field['reference']['FROM'].'.'.$field['reference']['TO'],
+					$field['reference']['FROM'].'_REF_'.$field['reference']['TO']
+				);
+			}
+		}
+
+//		return $this->getQuery()->setLimit(50)->exec();
+	}
+
+	/**
+	 * @method renderFilter
+	 * @return string|false
+	 */
+	public function renderFilter()
+	{
+		// TODO: Implement renderFilter() method.
 	}
 
 	public function render()
 	{
-		$fields = Container::getInstance()->getFields();
-		$filter = $this->initFilter();
-
-		$model = Container::getInstance()->getModel();
-		$query = new Main\Entity\Query($model);
-
-		foreach ($fields['core'] as $code => $field) {
-			if($field['reference']){
-				$alias = $field['reference']['FROM'].'_REF_'.$field['reference']['TO'];
-				$query->addSelect($field['reference']['FROM'].'.'.$field['reference']['TO'], $alias);
-			} else {
-				$query->addSelect($field['property'], $code);
-			}
-		}
-
-	}
-
-	public function renderFilter()
-	{
-
-
+		$oList = $this->fetchData();
 	}
 
 }
