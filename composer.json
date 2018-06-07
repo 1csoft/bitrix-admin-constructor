@@ -15,13 +15,13 @@
     "psr/cache": "*",
     "psr/container": "*",
     "psr/link": "*",
-    "symfony/var-dumper": "^3.4",
-    "symfony/console": "^3.4",
-    "symfony/dependency-injection": "^3.4",
-    "symfony/event-dispatcher": "^3.4",
-    "symfony/form": "^3.4",
-    "symfony/options-resolver": "^3.4",
-    "symfony/yaml": "^3.4"
+    "symfony/var-dumper": "^4",
+    "symfony/console": "^4",
+    "symfony/dependency-injection": "^4",
+    "symfony/event-dispatcher": "^4",
+    "symfony/form": "^4",
+    "symfony/options-resolver": "^4",
+    "symfony/yaml": "^4"
   },
   "autoload": {
     "psr-4": {
