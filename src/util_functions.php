@@ -42,6 +42,7 @@ VarDumper::setHandler(function ($var){
 			'ellipsis' => 'color:#FF8400',
 		]);
 
+		$dumper->setCharset('windows-1251');
 		?>
 		<div style='font-size:9pt; border: 1px solid #999; text-align: left'>
 			<div style='padding:3px 5px; background:#99CCFF; font-weight:bold;'>File: <?=$bt["file"]?> [<?=$bt["line"]?>]</div>
@@ -53,8 +54,6 @@ VarDumper::setHandler(function ($var){
 
 if(!function_exists('dd')){
 	function dd($var = null){
-		$var = $var ?: "EMPTY";
-
 		\Symfony\Component\VarDumper\VarDumper::dump($var);
 		exit;
 	}
